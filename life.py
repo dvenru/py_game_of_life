@@ -8,20 +8,34 @@ class Life:
         self.surface = surface
         self.present_map = [['0' for i in range(HEIGHT // TILE_SIZE)] for i in range(WIDTH // TILE_SIZE)]
         self.tile_size = TILE_SIZE
+        self.colors = [SOFT_BLACK, SOFT_RED]
 
-    def draw(self) -> None:
+        self.grid_visible = False
+
+    def draw(self, is_setting: bool = False, line_position: int = 0, tile_position: int = 0) -> None:
         for num_line, line in enumerate(self.present_map):
             for num_tile, tile in enumerate(line):
-                match tile:
-                    case '0':
-                        pg.draw.rect(self.surface, GRAY, (
-                            (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size))
-                    case '1':
-                        pg.draw.rect(self.surface, SOFT_RED, (
-                            (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size))
+                pg.draw.rect(self.surface, self.colors[int(tile)], (
+                    (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size))
 
-    def create_life(self, line_position: int, tile_position: int) -> None:
-        self.present_map[line_position][tile_position] = '1'
+                if self.grid_visible:
+                    pg.draw.rect(self.surface, (61, 66, 65), (
+                        (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size), 1)
+
+                if is_setting:
+                    pg.draw.rect(self.surface, (223, 244, 243), (
+                        (line_position * self.tile_size), (tile_position * self.tile_size), self.tile_size, self.tile_size))
+
+    def clear(self) -> None:
+        for num_line, line in enumerate(self.present_map):
+            for num_tile, tile in enumerate(line):
+                self.present_map[num_line][num_tile] = '0'
+
+    def set_life(self, line_position: int, tile_position: int, state: str) -> None:
+        self.present_map[line_position][tile_position] = state
+
+    def set_grid_visible(self) -> None:
+        self.grid_visible = not self.grid_visible
 
     def new_generation(self) -> None:
         future_map = [['0' for i in range(HEIGHT // TILE_SIZE)] for i in range(WIDTH // TILE_SIZE)]
@@ -30,15 +44,9 @@ class Life:
                 neighbors = self.search_neighbors(num_line, num_tile)
                 match tile:
                     case '0':
-                        if neighbors[1] == 3:
-                            future_map[num_line][num_tile] = '1'
-                        else:
-                            future_map[num_line][num_tile] = '0'
+                        future_map[num_line][num_tile] = '1' if neighbors[1] == 3 else '0'
                     case '1':
-                        if 2 <= neighbors[1] <= 3:
-                            future_map[num_line][num_tile] = '1'
-                        else:
-                            future_map[num_line][num_tile] = '0'
+                        future_map[num_line][num_tile] = '1' if 2 <= neighbors[1] <= 3 else '0'
 
         self.present_map = future_map.copy()
 
