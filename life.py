@@ -12,7 +12,7 @@ class Life:
 
         self.grid_visible = False
 
-    def draw(self, is_setting: bool = False, line_position: int = 0, tile_position: int = 0) -> None:
+    def draw(self) -> None:
         for num_line, line in enumerate(self.present_map):
             for num_tile, tile in enumerate(line):
                 pg.draw.rect(self.surface, self.colors[int(tile)], (
@@ -22,17 +22,28 @@ class Life:
                     pg.draw.rect(self.surface, (61, 66, 65), (
                         (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size), 1)
 
-                if is_setting:
+    def draw_hide(self, is_hide: bool = False, line_position: int = 0, tile_position: int = 0, draw_list = None) -> None:
+        if is_hide:
+            pg.draw.rect(self.surface, (223, 244, 243), (
+                (line_position * self.tile_size), (tile_position * self.tile_size), self.tile_size, self.tile_size))
+
+            if draw_list is not None:
+                for tile in draw_list:
                     pg.draw.rect(self.surface, (223, 244, 243), (
-                        (line_position * self.tile_size), (tile_position * self.tile_size), self.tile_size, self.tile_size))
+                        (tile[0] * self.tile_size), (tile[1] * self.tile_size), self.tile_size,
+                        self.tile_size))
 
     def clear(self) -> None:
         for num_line, line in enumerate(self.present_map):
             for num_tile, tile in enumerate(line):
                 self.present_map[num_line][num_tile] = '0'
 
-    def set_life(self, line_position: int, tile_position: int, state: str) -> None:
-        self.present_map[line_position][tile_position] = state
+    def set_life(self, line_position: int, tile_position: int, state: str, draw_list: list = None) -> None:
+        if draw_list is None:
+            self.present_map[line_position][tile_position] = state
+        else:
+            for tile in draw_list:
+                self.present_map[tile[0]][tile[1]] = state
 
     def set_grid_visible(self) -> None:
         self.grid_visible = not self.grid_visible
