@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# py_game_of_life
-
-Game of Life implementation in Python
-=======
 # PYGAME OF LIFE
 
 <hr>
@@ -20,4 +15,3 @@ Game of Life implementation in Python and PyGame
 <hr>
 
 Version 1.1 
->>>>>>> 7806cc2 (version 1.1)
