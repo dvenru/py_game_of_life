@@ -98,18 +98,16 @@ class Game:
 
                 # Обработка нажатий мыши
                 if self.is_paused:
-                    pressed_mouse = pg.mouse.get_pressed()
-                    pressed_key = pg.key.get_pressed()
 
                     # Рисование квадрата
-                    if pressed_key[pg.K_LCTRL]:
+                    if pg.key.get_pressed()[pg.K_LCTRL]:
 
                         if event.type == pg.MOUSEBUTTONDOWN:
                             start_position = (pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE)
                             drawing = True
                         if event.type == pg.MOUSEMOTION and drawing:
                             end_position = (pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE)
-                            self.draw_rect(start_position, end_position, True if pressed_key[pg.K_LSHIFT] else False)
+                            self.draw_rect(start_position, end_position, True if pg.key.get_pressed()[pg.K_LSHIFT] else False)
                         if event.type == pg.MOUSEBUTTONUP:
                             drawing = False
                             if event.button == 1:
@@ -120,9 +118,9 @@ class Game:
 
                     # Рисование точек
                     else:
-                        if pressed_mouse[0]:
+                        if pg.mouse.get_pressed()[0]:
                             self.life.set_life(pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, '1')
-                        elif pressed_mouse[2]:
+                        elif pg.mouse.get_pressed()[2]:
                             self.life.set_life(pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, '0')
                         self.draw_hide_list = []
 

@@ -43,10 +43,12 @@ class Life:
 
     def set_life(self, line_position: int, tile_position: int, state: str, draw_list: list = None) -> None:
         if draw_list is None:
-            self.present_map[line_position][tile_position] = state
+            if 0 <= line_position < len(self.present_map) and 0 <= tile_position < len(self.present_map[0]):
+                self.present_map[line_position][tile_position] = state
         else:
             for tile in draw_list:
-                self.present_map[tile[0]][tile[1]] = state
+                if 0 <= tile[0] < len(self.present_map) and 0 <= tile[1] < len(self.present_map[0]):
+                    self.present_map[tile[0]][tile[1]] = state
 
     def set_grid_visible(self) -> None:
         self.grid_visible = not self.grid_visible

@@ -29,7 +29,7 @@ class UIGroup:
 class Label:
     def __init__(self, surface, text: str, position: tuple = (int, int), size: int = 20, color = "white", timer: float = 0) -> None:
         self.surface = surface
-        self.font = pg.font.SysFont("Arial", size)
+        self.font = pg.font.SysFont(DEFAULT_FONT, size)
         self.image = self.font.render(text, True, color)
         _, _, width, height = self.image.get_rect()
         self.rect = pg.Rect(position[0], position[1], width, height)
@@ -50,11 +50,14 @@ class Label:
 
 
 class Button:
-    def __init__(self, surface, rect: tuple = (int, int, int, int), button_text: str = "Button", click_function = None) -> None:
+    def __init__(self, surface, rect: tuple = (int, int, int, int), button_text: str = "Button", size: int = 20, click_function = None) -> None:
         self.surface = surface
-        self.rect = pg.Rect(rect[0], rect[1], rect[2], rect[3])
+        self.font = pg.font.SysFont(DEFAULT_FONT, size)
         self.text = button_text
         self.click_function = click_function
+        self.rect = pg.Rect(rect[0], rect[1], rect[2], rect[3])
+        self.button_background = pg.Surface((rect[2], rect[3]))
+        self.button_text = self.font.render(self.text, True, "white")
 
         self.fill_color = {
             "normal": SOFT_RED,
