@@ -9,6 +9,8 @@ class Life:
         self.present_map = [['0' for i in range(HEIGHT // TILE_SIZE)] for i in range(WIDTH // TILE_SIZE)]
         self.tile_size = TILE_SIZE
         self.colors = [SOFT_BLACK, SOFT_RED]
+        self.rule_life = None
+        self.rule_birth = None
 
         self.grid_visible = False
 
@@ -22,7 +24,8 @@ class Life:
                     pg.draw.rect(self.surface, (61, 66, 65), (
                         (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size), 1)
 
-    def draw_hide(self, is_hide: bool = False, line_position: int = 0, tile_position: int = 0, draw_list = None) -> None:
+    def draw_hide(self, is_hide: bool = False, line_position: int = 0, tile_position: int = 0,
+                  draw_list = None) -> None:
         if is_hide:
             pg.draw.rect(self.surface, (223, 244, 243), (
                 (line_position * self.tile_size), (tile_position * self.tile_size), self.tile_size, self.tile_size))
@@ -48,6 +51,17 @@ class Life:
     def set_grid_visible(self) -> None:
         self.grid_visible = not self.grid_visible
 
+    def set_rule(self, new_rule_life: str, new_rule_birth: str) -> None:
+        self.rule_life = new_rule_life
+        self.rule_birth = new_rule_birth
+
+    def set_rule_str(self, new_rule: str) -> None:
+        self.rule_life = list(new_rule[:new_rule.find("/")])
+        self.rule_birth = list(new_rule[new_rule.find("/") + 1:])
+
+    def get_rule(self) -> str:
+        return "".join(self.rule_life) + "/" + "".join(self.rule_birth)
+
     def new_generation(self) -> None:
         future_map = [['0' for i in range(HEIGHT // TILE_SIZE)] for i in range(WIDTH // TILE_SIZE)]
         for num_line, line in enumerate(self.present_map):
@@ -55,9 +69,9 @@ class Life:
                 neighbors = self.search_neighbors(num_line, num_tile)
                 match tile:
                     case '0':
-                        future_map[num_line][num_tile] = '1' if neighbors[1] == 3 else '0'
+                        future_map[num_line][num_tile] = '1' if str(neighbors[1]) in list(self.rule_birth) else '0'
                     case '1':
-                        future_map[num_line][num_tile] = '1' if 2 <= neighbors[1] <= 3 else '0'
+                        future_map[num_line][num_tile] = '1' if str(neighbors[1]) in list(self.rule_life) else '0'
 
         self.present_map = future_map.copy()
 

@@ -2,7 +2,7 @@
 
 <hr>
 
-Game of Life implementation in Python and PyGame
+Game of Life implementation in Python and PyGame.
 
 > Control:
 > - LEFT -> speed up
@@ -13,7 +13,7 @@ Game of Life implementation in Python and PyGame
 > - CTRL + LEFT CLICK + pause -> draw square (SHIFT -> fill)
 > - RIGHT CLICK + pause -> delete life
 > - CTRL + RIGHT CLICK + pause -> delete square (SHIFT -> fill)
-> - DELETE -> clear 
+> - DELETE -> clear
 <hr>
 
-Version 1.2
+Version 1.3

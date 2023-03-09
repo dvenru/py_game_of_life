@@ -2,7 +2,7 @@ import pygame as pg
 
 from settings import *
 from life import Life
-from gameui import Label, UIGroup
+from gameui import UIGroup, Label, Button, OptionMenu
 
 
 class Game:
@@ -16,14 +16,25 @@ class Game:
         self.clock = pg.time.Clock()
 
         self.life = Life(self.screen)
+        self.life.set_rule_str(DEFAULT_LIFE_RULE)
         self.group_ui = UIGroup()
 
         self.is_paused = False
         self.select_speed = 1
-        self.speed_label = Label(self.screen, "SPEED: " + ">" * int(self.select_speed + 1), (10, 10), self.group_ui, 23)
+        self.speed_label = Label(self.screen, "SPEED: " + ">" * int(self.select_speed + 1), (10, 10), 23)
+        self.group_ui.append(self.speed_label)
+
+        self.rule_label = Label(self.screen, "RULE: " + self.life.get_rule(), (10, 40), 23)
+        self.group_ui.append(self.rule_label)
+
+        self.system_label = Label(self.screen, "! None !", (0, 0), 23, "red", 5)
+        self.system_label.set_center((WIDTH // 2, HEIGHT - 30))
+        # self.group_ui.append(self.system_label)
 
         self.new_generation = pg.USEREVENT + 1
+        self.system_label_hide = pg.USEREVENT + 2
         pg.time.set_timer(self.new_generation, int(WAIT_LIST[self.select_speed] * 1000))
+        # pg.time.set_timer(self.system_label_hide, int(self.system_label.get_timer() * 1000), 1)
 
         self.draw_hide_list = []
 
@@ -31,7 +42,7 @@ class Game:
         if new_speed == 0:
             self.is_paused = not self.is_paused
             pg.time.set_timer(self.new_generation, int((0 if self.is_paused else WAIT_LIST[self.select_speed]) * 1000))
-            self.speed_label.set_text("SPEED: ||" if self.is_paused else "SPEED: " + ">" * int(self.select_speed + 1))
+            self.speed_label.set_text("SPEED: PAUSE" if self.is_paused else "SPEED: " + ">" * int(self.select_speed + 1))
 
         elif 0 <= self.select_speed + new_speed < len(WAIT_LIST) and not self.is_paused:
             self.select_speed += new_speed
@@ -48,6 +59,9 @@ class Game:
                                if fill or ((x == end_position[0] or x == start_position[0])
                                or (y == end_position[1] or y == start_position[1]))]
 
+    def draw_pattern(self) -> None:
+        pass
+
     def run(self) -> None:
         # Локальный переменные
         drawing = False
@@ -61,23 +75,26 @@ class Game:
                 # Обработка основных событий
                 if event.type == pg.QUIT:
                     running = False
-                elif event.type == self.new_generation:
+                if event.type == self.new_generation:
                     self.life.new_generation()
+                if event.type == self.system_label_hide:
+                    self.group_ui.change_draw(self.system_label, False)
 
                 # Обработка нажатий клавиш
                 if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_ESCAPE:
-                        running = False
-                    elif event.key == pg.K_TAB:
-                        self.life.set_grid_visible()
-                    elif event.key == pg.K_RIGHT:
-                        self.update_event_wait(1)
-                    elif event.key == pg.K_LEFT:
-                        self.update_event_wait(-1)
-                    elif event.key == pg.K_SPACE:
-                        self.update_event_wait()
-                    elif event.key == pg.K_DELETE:
-                        self.life.clear()
+                    match event.key:
+                        case pg.K_ESCAPE:
+                            running = False
+                        case pg.K_TAB:
+                            self.life.set_grid_visible()
+                        case pg.K_RIGHT:
+                            self.update_event_wait(1)
+                        case pg.K_LEFT:
+                            self.update_event_wait(-1)
+                        case pg.K_SPACE:
+                            self.update_event_wait()
+                        case pg.K_DELETE:
+                            self.life.clear()
 
                 # Обработка нажатий мыши
                 if self.is_paused:
