@@ -60,9 +60,9 @@ class Button:
         self.button_text = self.font.render(self.text, True, "white")
 
         self.fill_color = {
-            "normal": SOFT_RED,
-            "pressed": GRAY_RED,
-            "hover": LIGHT_RED
+            "normal": COLOR_SOFT_RED,
+            "pressed": COLOR_GRAY_RED,
+            "hover": COLOR_LIGHT_RED
         }
 
     def draw(self) -> None:

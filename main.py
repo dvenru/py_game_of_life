@@ -1,9 +1,10 @@
 import pygame as pg
 
 from settings import *
-from life import Life
-from gameui import UIGroup, Label, Button, OptionMenu
+from gridController import GridController
+from gameUI import UIGroup, Label
 
+from cellDefault import CellDefault
 
 class Game:
 
@@ -15,8 +16,11 @@ class Game:
         pg.display.set_icon(pg.image.load("resources/pyGLicon.png"))
         self.clock = pg.time.Clock()
 
-        self.life = Life(self.screen)
-        self.life.set_rule_str(DEFAULT_LIFE_RULE)
+        self.grid_ctrl = GridController(self.screen)
+
+        self.grid_ctrl.register_cell_type(CellDefault)
+
+        self.grid_ctrl.set_rule_str(DEFAULT_LIFE_RULE)
         self.group_ui = UIGroup()
 
         self.is_paused = False
@@ -24,7 +28,7 @@ class Game:
         self.speed_label = Label(self.screen, "SPEED: " + ">" * int(self.select_speed + 1), (10, 10), 23)
         self.group_ui.append(self.speed_label)
 
-        self.rule_label = Label(self.screen, "RULE: " + self.life.get_rule(), (10, 40), 23)
+        self.rule_label = Label(self.screen, "RULE: " + self.grid_ctrl.get_rule(), (10, 40), 23)
         self.group_ui.append(self.rule_label)
 
         self.system_label = Label(self.screen, "! None !", (0, 0), 23, "red", 5)
@@ -76,7 +80,7 @@ class Game:
                 if event.type == pg.QUIT:
                     running = False
                 if event.type == self.new_generation:
-                    self.life.new_generation()
+                    self.grid_ctrl.new_generation()
                 if event.type == self.system_label_hide:
                     self.group_ui.change_draw(self.system_label, False)
 
@@ -86,7 +90,7 @@ class Game:
                         case pg.K_ESCAPE:
                             running = False
                         case pg.K_TAB:
-                            self.life.set_grid_visible()
+                            self.grid_ctrl.set_grid_visible()
                         case pg.K_RIGHT:
                             self.update_event_wait(1)
                         case pg.K_LEFT:
@@ -94,7 +98,7 @@ class Game:
                         case pg.K_SPACE:
                             self.update_event_wait()
                         case pg.K_DELETE:
-                            self.life.clear()
+                            self.grid_ctrl.clear()
 
                 # Обработка нажатий мыши
                 if self.is_paused:
@@ -111,22 +115,22 @@ class Game:
                         if event.type == pg.MOUSEBUTTONUP:
                             drawing = False
                             if event.button == 1:
-                                self.life.set_life(0, 0, '1', self.draw_hide_list)
+                                self.grid_ctrl.set_life(0, 0, '1', self.draw_hide_list)
                             if event.button == 3:
-                                self.life.set_life(0, 0, '0', self.draw_hide_list)
+                                self.grid_ctrl.set_life(0, 0, '0', self.draw_hide_list)
                             self.draw_hide_list = []
 
                     # Рисование точек
                     else:
                         if pg.mouse.get_pressed()[0]:
-                            self.life.set_life(pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, '1')
+                            self.grid_ctrl.set_life(pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, '1')
                         elif pg.mouse.get_pressed()[2]:
-                            self.life.set_life(pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, '0')
+                            self.grid_ctrl.set_life(pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, '0')
                         self.draw_hide_list = []
 
             # Рисование изображения
-            self.life.draw()
-            self.life.draw_hide(self.is_paused, pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, self.draw_hide_list)
+            self.grid_ctrl.draw()
+            self.grid_ctrl.draw_hide(self.is_paused, pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, self.draw_hide_list)
             self.group_ui.update()
 
             pg.display.flip()

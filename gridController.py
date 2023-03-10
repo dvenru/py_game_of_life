@@ -1,31 +1,47 @@
 import pygame as pg
 
+from cellAbstract import CellAbstract
 from settings import *
 
 
-class Life:
+class GridController:
     def __init__(self, surface) -> None:
-        self.surface = surface
-        self.present_map = [['0' for i in range(HEIGHT // TILE_SIZE)] for i in range(WIDTH // TILE_SIZE)]
-        self.tile_size = TILE_SIZE
-        self.colors = [COLOR_SOFT_BLACK, COLOR_SOFT_RED]
+
+        self.surface = surface  # Задаем поле
+
+        # Создаем пустую матрицу
+        self.present_map = [["0" for i in range(HEIGHT // TILE_SIZE)] for i in range(WIDTH // TILE_SIZE)]
+
+        self.tile_size = TILE_SIZE  # размер клетки
+
+        self.ground_color = COLOR_SOFT_BLACK  # цвет заднего фона
+
         self.rule_life = None
         self.rule_birth = None
 
         self.grid_visible = False
 
+        self.cells_types = []
+
+    def register_cell_type(self, cell_type: CellAbstract):
+        self.cells_types.append(cell_type)
+
     def draw(self) -> None:
         for num_line, line in enumerate(self.present_map):
             for num_tile, tile in enumerate(line):
-                pg.draw.rect(self.surface, self.colors[int(tile)], (
-                    (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size))
+                if tile == "0":
+                    pg.draw.rect(self.surface, self.ground_color, (
+                        (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size))
+                elif tile == "1":
+                    pg.draw.rect(self.surface, COLOR_CELL_DEFAULT, (
+                        (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size))
 
                 if self.grid_visible:
                     pg.draw.rect(self.surface, (61, 66, 65), (
                         (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size), 1)
 
     def draw_hide(self, is_hide: bool = False, line_position: int = 0, tile_position: int = 0,
-                  draw_list = None) -> None:
+                  draw_list=None) -> None:
         if is_hide:
             pg.draw.rect(self.surface, (223, 244, 243), (
                 (line_position * self.tile_size), (tile_position * self.tile_size), self.tile_size, self.tile_size))
@@ -33,13 +49,12 @@ class Life:
             if draw_list is not None:
                 for tile in draw_list:
                     pg.draw.rect(self.surface, (223, 244, 243), (
-                        (tile[0] * self.tile_size), (tile[1] * self.tile_size), self.tile_size,
-                        self.tile_size))
+                        (tile[0] * self.tile_size), (tile[1] * self.tile_size), self.tile_size, self.tile_size))
 
     def clear(self) -> None:
         for num_line, line in enumerate(self.present_map):
             for num_tile, tile in enumerate(line):
-                self.present_map[num_line][num_tile] = '0'
+                self.present_map[num_line][num_tile] = "none"
 
     def set_life(self, line_position: int, tile_position: int, state: str, draw_list: list = None) -> None:
         if draw_list is None:
@@ -65,15 +80,15 @@ class Life:
         return "".join(self.rule_life) + "/" + "".join(self.rule_birth)
 
     def new_generation(self) -> None:
-        future_map = [['0' for i in range(HEIGHT // TILE_SIZE)] for i in range(WIDTH // TILE_SIZE)]
+        future_map = [["0" for i in range(HEIGHT // TILE_SIZE)] for i in range(WIDTH // TILE_SIZE)]
         for num_line, line in enumerate(self.present_map):
             for num_tile, tile in enumerate(line):
                 neighbors = self.search_neighbors(num_line, num_tile)
                 match tile:
-                    case '0':
-                        future_map[num_line][num_tile] = '1' if str(neighbors[1]) in list(self.rule_birth) else '0'
-                    case '1':
-                        future_map[num_line][num_tile] = '1' if str(neighbors[1]) in list(self.rule_life) else '0'
+                    case "0":
+                        future_map[num_line][num_tile] = "1" if str(neighbors[1]) in list(self.rule_birth) else "0"
+                    case "1":
+                        future_map[num_line][num_tile] = "1" if str(neighbors[1]) in list(self.rule_life) else "0"
 
         self.present_map = future_map.copy()
 
@@ -85,5 +100,5 @@ class Life:
                      (line_position != l_pos or tile_position != t_pos) and
                      (0 <= l_pos < len(self.present_map)) and
                      (0 <= t_pos < len(self.present_map[0]))]
-        neighbors_count = neighbors.count('1')
+        neighbors_count = neighbors.count("1")
         return [neighbors, neighbors_count]
