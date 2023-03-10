@@ -12,3 +12,7 @@ LIGHT_RED = (246, 65, 108)
 SOFT_RED = (232, 74, 95)
 GRAY_RED = (144, 55, 73)
 SOFT_BLACK = (42, 54, 59)
+
+# Цвета клеток
+CELL_DEFAULT = (150, 200, 40)
+
