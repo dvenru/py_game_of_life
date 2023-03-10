@@ -2,7 +2,8 @@ import pygame as pg
 
 from settings import *
 from life import Life
-from gameui import UIGroup, Label, Button, OptionMenu
+from gameui import UIGroup, Label, CursorRule
+from gameui import Button
 
 
 class Game:
@@ -19,24 +20,29 @@ class Game:
         self.life.set_rule_str(DEFAULT_LIFE_RULE)
         self.group_ui = UIGroup()
 
+        self.menu_opened = False
         self.is_paused = False
         self.select_speed = 1
         self.speed_label = Label(self.screen, "SPEED: " + ">" * int(self.select_speed + 1), (10, 10), 23)
-        self.group_ui.append(self.speed_label)
-
         self.rule_label = Label(self.screen, "RULE: " + self.life.get_rule(), (10, 40), 23)
-        self.group_ui.append(self.rule_label)
+        self.group_ui.change_group([self.speed_label, self.rule_label], True, False)
 
-        self.system_label = Label(self.screen, "! None !", (0, 0), 23, "red", 5)
+        self.system_label = Label(self.screen, "! NONE !", (0, 0), 23, "red", 0.5)
         self.system_label.set_center((WIDTH // 2, HEIGHT - 30))
-        # self.group_ui.append(self.system_label)
+        self.group_ui.change_group([self.system_label], True, False)
+
+        self.mouse_rule = CursorRule(self.screen, "0-0", (0, 0), 20, SOFT_RED)
+
+        self.set_rule_button = Button(self.screen, (0, 0, 150, 40), "RULE")
+        self.set_rule_button.rect.center = (WIDTH // 2, HEIGHT // 2)
+        self.group_ui.change_group([self.set_rule_button], True, True)
 
         self.new_generation = pg.USEREVENT + 1
         self.system_label_hide = pg.USEREVENT + 2
         pg.time.set_timer(self.new_generation, int(WAIT_LIST[self.select_speed] * 1000))
-        # pg.time.set_timer(self.system_label_hide, int(self.system_label.get_timer() * 1000), 1)
+        pg.time.set_timer(self.system_label_hide, int(self.system_label.get_timer() * 1000), 1)
 
-        self.draw_hide_list = []
+        self.draw_area_list = []
 
     def update_event_wait(self, new_speed: int = 0) -> None:
         if new_speed == 0:
@@ -54,7 +60,7 @@ class Game:
         x_step = -1 if end_position[0] > start_position[0] else 1
         y_step = -1 if end_position[1] > start_position[1] else 1
 
-        self.draw_hide_list = [(x, y) for x in range(end_position[0], start_position[0] + x_step, x_step)
+        self.draw_area_list = [(x, y) for x in range(end_position[0], start_position[0] + x_step, x_step)
                                for y in range(end_position[1], start_position[1] + y_step, y_step)
                                if fill or ((x == end_position[0] or x == start_position[0])
                                or (y == end_position[1] or y == start_position[1]))]
@@ -78,7 +84,7 @@ class Game:
                 if event.type == self.new_generation:
                     self.life.new_generation()
                 if event.type == self.system_label_hide:
-                    self.group_ui.change_draw(self.system_label, False)
+                    self.group_ui.change_group([self.system_label], False, False)
 
                 # Обработка нажатий клавиш
                 if event.type == pg.KEYDOWN:
@@ -96,25 +102,37 @@ class Game:
                         case pg.K_DELETE:
                             self.life.clear()
 
-                # Обработка нажатий мыши
-                if self.is_paused:
+                # Одна из вариаций паузы (неудобно)
+                # if event.type == pg.MOUSEBUTTONDOWN:
+                #     self.update_event_wait(0)
+                # if event.type == pg.MOUSEBUTTONUP:
+                #     self.update_event_wait(0)
 
-                    # Рисование квадрата
+                if not self.menu_opened:
+
                     if pg.key.get_pressed()[pg.K_LCTRL]:
 
                         if event.type == pg.MOUSEBUTTONDOWN:
                             start_position = (pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE)
                             drawing = True
+                            self.group_ui.change_group([self.mouse_rule], True, False)
+
                         if event.type == pg.MOUSEMOTION and drawing:
                             end_position = (pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE)
                             self.draw_rect(start_position, end_position, True if pg.key.get_pressed()[pg.K_LSHIFT] else False)
+                            self.mouse_rule.set_text(str(max([x[0] for x in self.draw_area_list])
+                                                         - min([x[0] for x in self.draw_area_list]) + 1) + " | " +
+                                                     str(max([y[1] for y in self.draw_area_list])
+                                                         - min([y[1] for y in self.draw_area_list]) + 1), SOFT_RED)
+
                         if event.type == pg.MOUSEBUTTONUP:
                             drawing = False
+                            self.group_ui.change_group([self.mouse_rule], False, False)
                             if event.button == 1:
-                                self.life.set_life(0, 0, '1', self.draw_hide_list)
+                                self.life.set_life(0, 0, '1', self.draw_area_list)
                             if event.button == 3:
-                                self.life.set_life(0, 0, '0', self.draw_hide_list)
-                            self.draw_hide_list = []
+                                self.life.set_life(0, 0, '0', self.draw_area_list)
+                            self.draw_area_list = []
 
                     # Рисование точек
                     else:
@@ -122,11 +140,11 @@ class Game:
                             self.life.set_life(pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, '1')
                         elif pg.mouse.get_pressed()[2]:
                             self.life.set_life(pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, '0')
-                        self.draw_hide_list = []
+                        self.draw_area_list = []
 
             # Рисование изображения
             self.life.draw()
-            self.life.draw_hide(self.is_paused, pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, self.draw_hide_list)
+            self.life.draw_area(self.is_paused, pg.mouse.get_pos()[0] // TILE_SIZE, pg.mouse.get_pos()[1] // TILE_SIZE, self.draw_area_list)
             self.group_ui.update()
 
             pg.display.flip()

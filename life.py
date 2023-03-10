@@ -24,17 +24,14 @@ class Life:
                     pg.draw.rect(self.surface, (61, 66, 65), (
                         (num_line * self.tile_size), (num_tile * self.tile_size), self.tile_size, self.tile_size), 1)
 
-    def draw_hide(self, is_hide: bool = False, line_position: int = 0, tile_position: int = 0,
-                  draw_list = None) -> None:
-        if is_hide:
-            pg.draw.rect(self.surface, (223, 244, 243), (
-                (line_position * self.tile_size), (tile_position * self.tile_size), self.tile_size, self.tile_size))
+    def draw_area(self, is_paused: bool, line_position: int = 0, tile_position: int = 0, draw_list = None) -> None:
+        pg.draw.rect(self.surface, (223, 244, 243) if is_paused else (57, 62, 70), ((line_position * self.tile_size), (tile_position * self.tile_size), self.tile_size, self.tile_size))
 
-            if draw_list is not None:
-                for tile in draw_list:
-                    pg.draw.rect(self.surface, (223, 244, 243), (
-                        (tile[0] * self.tile_size), (tile[1] * self.tile_size), self.tile_size,
-                        self.tile_size))
+        if draw_list is not None:
+            for tile in draw_list:
+                pg.draw.rect(self.surface, (223, 244, 243), (
+                    (tile[0] * self.tile_size), (tile[1] * self.tile_size), self.tile_size,
+                    self.tile_size))
 
     def clear(self) -> None:
         for num_line, line in enumerate(self.present_map):
