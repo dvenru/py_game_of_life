@@ -5,6 +5,7 @@
 Game of Life implementation in Python and PyGame.
 
 > Control:
+> - ESCAPE -> open menu
 > - LEFT -> speed up
 > - RIGHT -> speed down
 > - SPACE -> pause
@@ -16,4 +17,4 @@ Game of Life implementation in Python and PyGame.
 > - DELETE -> clear
 <hr>
 
-Version 1.4
+Version 1.5
