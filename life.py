@@ -6,7 +6,7 @@ from settings import *
 class Life:
     def __init__(self, surface) -> None:
         self.surface = surface
-        self.present_map = [['0' for i in range(HEIGHT // TILE_SIZE)] for i in range(WIDTH // TILE_SIZE)]
+        self.present_map = [['0' for _i in range(HEIGHT // TILE_SIZE)] for _i in range(WIDTH // TILE_SIZE)]
         self.tile_size = TILE_SIZE
         self.colors = [SOFT_BLACK, SOFT_RED]
         self.rule_life = None
@@ -62,7 +62,7 @@ class Life:
         return "".join(self.rule_life) + "/" + "".join(self.rule_birth)
 
     def new_generation(self) -> None:
-        future_map = [['0' for i in range(HEIGHT // TILE_SIZE)] for i in range(WIDTH // TILE_SIZE)]
+        future_map = [['0' for _i in range(HEIGHT // TILE_SIZE)] for _i in range(WIDTH // TILE_SIZE)]
         for num_line, line in enumerate(self.present_map):
             for num_tile, tile in enumerate(line):
                 neighbors = self.search_neighbors(num_line, num_tile)

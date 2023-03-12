@@ -17,4 +17,4 @@ Game of Life implementation in Python and PyGame.
 > - DELETE -> clear
 <hr>
 
-Version 1.5
+Version 1.5.1

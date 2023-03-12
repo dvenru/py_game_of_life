@@ -21,7 +21,6 @@ class Game:
         self.life.set_rule_str(DEFAULT_LIFE_RULE)
         self.group_ui = UIGroup()
 
-        self.game_running = True
         self.option_menu_opened = False
         self.rule_menu_opened = False
         self.is_paused = False
@@ -85,9 +84,14 @@ class Game:
         self.group_ui.change_group(self.rule_edit_elements, self.rule_menu_opened, self.rule_menu_opened)
 
     def set_rule_click(self, is_default: bool) -> None:
-        self.rule_label.set_text("RULE: " + DEFAULT_LIFE_RULE if is_default else "RULE: " + self.rule_edit_elements[2].text + "/" + self.rule_edit_elements[3].text)
-        self.life.set_rule_str(DEFAULT_LIFE_RULE if is_default else self.rule_edit_elements[2].text + "/" + self.rule_edit_elements[3].text)
-        self.control_menu("rule")
+        if (len(self.rule_edit_elements[2].text) == 0 or len(self.rule_edit_elements[3].text) == 0) and not is_default:
+            self.system_label.set_text("Неправильный ввод правил!")
+            self.system_label.set_center((WIDTH // 2, HEIGHT - 30))
+            pg.time.set_timer(self.system_label_hide, 3000, 1)
+        else:
+            self.rule_label.set_text("RULE: " + DEFAULT_LIFE_RULE if is_default else "RULE: " + self.rule_edit_elements[2].text + "/" + self.rule_edit_elements[3].text)
+            self.life.set_rule_str(DEFAULT_LIFE_RULE if is_default else self.rule_edit_elements[2].text + "/" + self.rule_edit_elements[3].text)
+            self.control_menu("rule")
 
     def update_event_wait(self, new_speed: int = 0) -> None:
         if new_speed == 0:
@@ -118,7 +122,7 @@ class Game:
         drawing = False
         start_position = (0, 0)
 
-        while self.game_running:
+        while True:
             self.clock.tick(FPS)
 
             for event in pg.event.get():
@@ -127,7 +131,8 @@ class Game:
 
                 # Обработка основных событий
                 if event.type == pg.QUIT:
-                    self.game_running = False
+                    pg.quit()
+                    sys.exit()
                 if event.type == self.new_generation:
                     self.life.new_generation()
                 if event.type == self.system_label_hide:
@@ -196,9 +201,6 @@ class Game:
             self.group_ui.update()
 
             pg.display.flip()
-
-        pg.quit()
-        sys.exit()
 
 
 if __name__ == "__main__":
